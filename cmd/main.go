@@ -1,9 +1,8 @@
 package main
 
-import (
-	"fmt"
-)
+import "kliptopia-api/internal/api"
 
 func main(){
-	fmt.Println("Hello word")
+	//start server with all routes
+	api.Start()
 }

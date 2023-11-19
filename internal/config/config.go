@@ -1,32 +1,35 @@
 package config
 
 import (
-	log "github.com/sirupsen/logrus"
+	"kliptopia-api/internal/models"
 	"os"
 	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 )
 
-type config struct{
-	rabbitmq_host string
-	rabbitmq_port string
-	rabbitmq_username string
-	rabbitmq_password string
-	rabbitmq_queue string
-	rabbitmq_url string
-}
+func LoadConfig() models.Config {
+	err := godotenv.Load("../.env")
+	logger :=log.New()
 
-func LoadEnv() config{
-	err := godotenv.Load("production.env")
 	if err != nil {
-		log.Info("Some error occured. Err: ", err)
+		logger.Error("Error loading .env file: %s", err)
+		panic(nil)
 	}
 
-	return config{
-		rabbitmq_host: os.Getenv("RABBITMQ_HOST"),
-		rabbitmq_port: os.Getenv("RABBITMQ_PORT"),
-		rabbitmq_username: os.Getenv("RABBITMQ_USERNAME"),
-		rabbitmq_password: os.Getenv("RABBITMQ_PASSWORD"),
-		rabbitmq_queue: os.Getenv("RABBITMQ_QUEUE"),
-		rabbitmq_url: os.Getenv("RABBITMQ_URL"),
+	return models.Config{
+		RabbitMQ: models.RabbitMQConfig{
+			Host:     os.Getenv("RABBITMQ_HOST"),
+			Port:     os.Getenv("RABBITMQ_PORT"),
+			User:     os.Getenv("RABBITMQ_USER"),
+			Password: os.Getenv("RABBITMQ_PASSWORD"),
+			Queue:    os.Getenv("RABBITMQ_QUEUE"),
+		},
+		Postgres: models.PostgresConfig{
+			Host:     os.Getenv("POSTGRES_HOST"),
+			Port:     os.Getenv("POSTGRES_POST"),
+			User:     os.Getenv("POSTGRES_USER"),
+			Password: os.Getenv("POSTGRES_PASSWORD"),
+			Database: os.Getenv("POSTGRES_DATABASE"),
+		},
 	}
 }
