@@ -50,3 +50,9 @@ func CreateUser(RequestBody models.AuthRequestBody) (bool,error){
 	}
 	return true, nil
 }
+
+func CheckUser(email string) bool{
+	var rowCount int64
+	DB.Table("users").Where("email",email).Count(&rowCount)
+	return rowCount > 0
+}

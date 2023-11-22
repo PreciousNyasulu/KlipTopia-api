@@ -30,6 +30,11 @@ func CreateUserHandler(c *gin.Context){
 		return
 	}
 
+	if auth.CheckUser(user.Email) {
+		c.JSON(http.StatusBadRequest,gin.H{"message":"User already exists"})
+		return
+	}
+
 	// Insert user into the database
 	_,err := auth.CreateUser(user)
 	if err != nil {
@@ -39,3 +44,4 @@ func CreateUserHandler(c *gin.Context){
 
 	c.JSON(http.StatusOK, gin.H{"message": "User registered successfully"})
 }
+
