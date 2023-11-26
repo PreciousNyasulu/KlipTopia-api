@@ -35,7 +35,6 @@ type PostgresConfig struct {
 }
 
 type User struct {
-	UserID             int       `json:"user_id"`
 	Username           string     `json:"username"`
 	Email              string     `json:"email"`
 	PasswordHash       string     `json:"password_hash"`
@@ -60,4 +59,10 @@ type AuthRequestBody struct{
 	LastName	string `json:"lastname" validate:"required,min=3,max=20"`
 	Email 		string `json:"email" validate:"required,email"`
 	Password 	string `json:"password" validate:"required,min=8,max=16"`
+}
+
+type SessionData struct{
+	UserID		string
+	Email		string
+	Username	string
 }

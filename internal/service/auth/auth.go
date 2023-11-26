@@ -28,7 +28,6 @@ func CreateUser(RequestBody models.AuthRequestBody) (bool,error){
 	}
 	
 	user := models.User{
-		UserID: int(utils.GenerateUUID()),
 		Username: RequestBody.Username,
 		Email: RequestBody.Email,
 		PasswordHash: passwordHash,
@@ -56,3 +55,18 @@ func CheckUser(email string) bool{
 	DB.Table("users").Where("email",email).Count(&rowCount)
 	return rowCount > 0
 }
+
+func Login(user models.AuthRequestBody) string{
+	var results []models.User
+	DB.Where(models.User{Email: user.Email}).Or(models.User{Username: user.Username}).Find(&results)
+	
+	for _, _user := range results {
+		passwordIsCorrect := utils.VerifyPassword(user.Password,_user.PasswordHash)
+		if passwordIsCorrect == nil {
+			return "success"
+		}
+		return "invalid"
+	}
+	return "not found"
+}
+
