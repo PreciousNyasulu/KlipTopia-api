@@ -11,10 +11,10 @@ import (
 )
 
 var DB *gorm.DB
+var logger = *log.New()
 
 func Connect() (*gorm.DB, error) {
 	config := config.LoadConfig()
-	logger := log.New()
 	password := config.Postgres.Password
 	host := config.Postgres.Host
 	user := config.Postgres.User
@@ -36,7 +36,6 @@ func Connect() (*gorm.DB, error) {
 
 // CloseDB closes the GORM database connection
 func CloseDB() {
-	logger := log.New()
 	if DB != nil {
 		sqlDB, err := DB.DB()
 		if err != nil {

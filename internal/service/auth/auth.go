@@ -3,14 +3,17 @@ package auth
 import (
 	// "encoding/json"
 	"kliptopia-api/internal/models"
+	rabbitmqprocesses "kliptopia-api/internal/rabbitmq_processes"
 	"kliptopia-api/internal/repository"
 	"kliptopia-api/internal/utils"
 	"time"
 
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 var DB, _ = repository.Connect()
+var logger = log.New()
 
 // GetUser retrieves a user by ID and returns it as JSON
 func GetUser() (models.User, error) {
@@ -64,11 +67,18 @@ func Login(user models.AuthRequestBody) string{
 
 	for _, _user := range results {
 		passwordIsCorrect := utils.VerifyPassword(user.Password,_user.PasswordHash)
+		
 		if passwordIsCorrect == nil {
+			_,err :=rabbitmqprocesses.CreateSessionQueue(_user.Username)
+			if err == nil {
+				logger.Info("created queue for: ",user.Username)
+			}
 			return "success"
 		}
+
 		return "invalid"
 	}
+	
 	return "not found"
 }
 
