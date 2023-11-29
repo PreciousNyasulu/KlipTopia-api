@@ -23,6 +23,7 @@ func LoadConfig() models.Config {
 			User:     os.Getenv("RABBITMQ_USER"),
 			Password: os.Getenv("RABBITMQ_PASSWORD"),
 			Queue:    os.Getenv("RABBITMQ_QUEUE"),
+			Url: 	  os.Getenv("RABBITMQ_URL"),
 		},
 		Postgres: models.PostgresConfig{
 			Host:     os.Getenv("POSTGRES_HOST"),

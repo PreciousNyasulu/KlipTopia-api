@@ -23,6 +23,7 @@ type RabbitMQConfig struct {
 	User     string
 	Password string
 	Queue    string
+	Url		 string
 }
 
 // PostgresConfig struct to hold PostgreSQL configuration
