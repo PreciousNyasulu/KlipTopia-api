@@ -23,7 +23,12 @@ services:
       - "5432:5432"
     networks:
       - mynetwork
+    volumes:
+      - ./database/DDL.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --init-file=/docker-entrypoint-initdb.d/init.sql
 
+volumes:
+  db-data:
 networks:
   mynetwork:
     driver: bridge
