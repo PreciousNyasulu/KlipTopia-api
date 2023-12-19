@@ -67,3 +67,11 @@ type SessionData struct{
 	Email		string
 	Username	string
 }
+
+type QueueMessage 	struct{
+	ID				string		`json:"id"`
+	DeviceIpAddress string		`json:"deviceAddress"`
+	Content 		string		`json:"content"`
+	ContentType		string		`json:"contentType"`
+	CopiedAt 		time.Time	`json:"copiedAt"`
+}
