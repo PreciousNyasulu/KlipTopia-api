@@ -7,7 +7,7 @@ WORKDIR /Kliptopia
 COPY . .
 
 # Build the Go application
-RUN cd cmd && go build -o cmd/main .
+RUN go build -o build/main cmd/main.go
 
 FROM alpine:latest
 
@@ -15,7 +15,7 @@ FROM alpine:latest
 WORKDIR /Kliptopia
 
 # Copy only the built binary
-COPY --from=build /Kliptopia/cmd/main .
+COPY --from=build /Kliptopia/build/main .
 
 # Expose the port 
 EXPOSE 9000
