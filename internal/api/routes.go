@@ -18,6 +18,7 @@ func Start(){
 	// auth routes
 	r.POST("/api/auth/register",controller.CreateUserHandler)
 	r.POST("/api/auth/login",controller.LoginHandler)
+	r.POST("/api/clipboard/copy")
 
 	r.Run(":9000")
 }
