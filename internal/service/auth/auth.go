@@ -12,8 +12,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var DB, _ = repository.Connect()
+var DB,err = repository.Connect()
 var logger = log.New()
+
+func init(){	 
+	if err != nil {
+		panic(err)
+	}
+}
 
 // GetUser retrieves a user by ID and returns it as JSON
 func GetUser() (models.User, error) {
