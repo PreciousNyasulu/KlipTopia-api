@@ -11,7 +11,7 @@ import (
 func Start(){
 	r := gin.Default()
 
-	r.POST("/health-test",func (c *gin.Context)  {
+	r.GET("/health-check",func (c *gin.Context)  {
 		c.JSON(http.StatusOK,models.Health_check{Healthy: true})
 	})
 
