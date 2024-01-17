@@ -13,15 +13,17 @@ import (
 
 var config = conf.LoadConfig()
 var	logger = *log.New()
+var channel *amqp.Channel
 
+//rabbitmq_processes: establishes a queue with the user's username
 func CreateSessionQueue(queueName string) (*amqp.Channel , error){
-	conn,err := ConnectChannel(config.RabbitMQ.Url)
+	conn,err := ConnectChannel()
 	if err != nil {
 		return nil, err
 	}
 	defer conn.Close()
 
-	channel,err := conn.Channel()	
+	channel,err = conn.Channel()	
 	if err != nil {
 		logger.Error("Failed to initiate channel")
 		return nil, err
@@ -46,10 +48,9 @@ func CreateSessionQueue(queueName string) (*amqp.Channel , error){
 	return channel, nil
 }
 
-func ConnectChannel(connectionString string) (*amqp.Connection, error){
+func ConnectChannel() (*amqp.Connection, error){
 	// Connect to RabbitMQ
-	conn, err := amqp.Dial(connectionString)
-
+	conn, err := amqp.Dial(config.RabbitMQ.Url)
 	if err != nil {
 		logger.Error("Failed to connect to RabbitMQ: ", err)
 		return nil, err
@@ -57,8 +58,8 @@ func ConnectChannel(connectionString string) (*amqp.Connection, error){
 	return conn, nil
 }
 
-func SendMessageToQueue(channel *amqp.Channel, queueName string, message models.QueueMessage) error {
-	// Convert the message to a byte slice
+func PushMessageToQueue(queueName string, message *models.QueueMessage) error {
+	// Encode message 
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
 	if err := enc.Encode(message); err != nil {
@@ -66,7 +67,15 @@ func SendMessageToQueue(channel *amqp.Channel, queueName string, message models.
 		return err
 	}
 
-	err := channel.Publish(
+	conn, _ := ConnectChannel()
+	channel,err := conn.Channel()
+	if err != nil {
+		logger.Error("Failed to establish RabbitMQ channel.")
+		return err
+	}
+	defer channel.Close()
+
+	err = channel.Publish(
 		"",         // exchange
 		queueName,  // routing key
 		false,      // mandatory
