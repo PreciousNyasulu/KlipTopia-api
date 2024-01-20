@@ -9,9 +9,11 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	conf "kliptopia-api/internal/config"
 )
 
 var validate = validator.New()
+var config = conf.LoadConfig()
 
 func GetAllUsersHandler(c *gin.Context){
 	jsondata,_ :=auth.GetUser()
@@ -87,7 +89,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Check if the header is in the format "Bearer token"
+		// Check if the header is in the format "Bearer [token]"
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
@@ -99,8 +101,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		tokenString := parts[1]
 		claims := &jwt.StandardClaims{}
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			// TODO: Add your secret key for token validation
-			return []byte("yourSecretKey"), nil
+			return config.Authentication.TOKEN_SIGNING_SECRET, nil
 		})
 
 		if err != nil || !token.Valid {
@@ -110,20 +111,25 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		// Token is valid, continue to the next handler
-		c.Set("username", claims.Subject)
+		c.Set(contextUsernameKey, claims.Subject)
 		c.Next()
 	}
 }
 
+const (
+    contextUsernameKey = "username"
+)
+
 // GenerateToken generates a new JWT token for the given user.
 func GenerateToken(user models.AuthRequestBody) (string, error) {
-	// TODO: Add your secret key for token signing
-	secretKey := []byte(user.Email)
+
+	//dont know if this is the correct way to do it (sigh) :(
+	secretKey := config.Authentication.TOKEN_SIGNING_SECRET
 	
-	// Create a new token
+	// generate a jwt
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Subject:   user.Username,
-		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), // Token expires in 24 hours
+		Subject:   user.Email, //not sure about setting the email as the subject though
+		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), // Token expires in 24 hours, sounds like a good idea for now
 	})
 
 	// Sign the token with the secret key
