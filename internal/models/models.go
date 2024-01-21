@@ -14,6 +14,7 @@ type Health_check struct{
 type Config struct {
 	RabbitMQ RabbitMQConfig
 	Postgres PostgresConfig
+	Authentication AuthConfig
 }
 
 // RabbitMQConfig struct to hold RabbitMQ configuration
@@ -74,4 +75,8 @@ type QueueMessage 	struct{
 	Content 		string		`json:"content" validate:"required"`
 	ContentType		string		`json:"contentType"`
 	CopiedAt 		time.Time	`json:"copiedAt" validate:"required"`
+}
+
+type AuthConfig struct{
+	TOKEN_SIGNING_SECRET string
 }
