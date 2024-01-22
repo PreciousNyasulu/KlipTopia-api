@@ -32,5 +32,8 @@ func LoadConfig() models.Config {
 			Password: os.Getenv("POSTGRES_PASSWORD"),
 			Database: os.Getenv("POSTGRES_DATABASE"),
 		},
+		Authentication: models.AuthConfig{
+			TOKEN_SIGNING_SECRET: os.Getenv("TOKEN_SIGNING_SECRET"),
+		},
 	}
 }
