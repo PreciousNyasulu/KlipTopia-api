@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	conf "kliptopia-api/internal/config"
 	"kliptopia-api/internal/models"
 	"kliptopia-api/internal/service/auth"
@@ -114,11 +115,11 @@ func AuthMiddleware() gin.HandlerFunc {
 		tokenString := parts[1]
 		claims := &jwt.StandardClaims{}
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			return config.Authentication.TOKEN_SIGNING_SECRET, nil
+			return []byte(config.Authentication.TOKEN_SIGNING_SECRET), nil
 		})
 
 		if err != nil || !token.Valid {
-			c.JSON(401, gin.H{"error": "Unauthorized"})
+			c.JSON(401, gin.H{"message": fmt.Sprintf("Unauthorized, %v",err)})
 			c.Abort()
 			return
 		}
