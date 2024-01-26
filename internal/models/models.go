@@ -80,3 +80,11 @@ type QueueMessage 	struct{
 type AuthConfig struct{
 	TOKEN_SIGNING_SECRET string
 }
+
+type Token struct{
+	id int
+	user_id int
+	token string
+	created_at time.Time
+	expired_at time.Time
+}
