@@ -2,6 +2,10 @@ package rabbitmqprocesses
 
 import (
 	conf "kliptopia-api/internal/config"
+	"kliptopia-api/internal/models"
+
+	"bytes"
+	"encoding/gob"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
@@ -51,4 +55,33 @@ func ConnectChannel(connectionString string) (*amqp.Connection, error){
 		return nil, err
 	}
 	return conn, nil
+}
+
+func SendMessageToQueue(channel *amqp.Channel, queueName string, message models.QueueMessage) error {
+	// Convert the message to a byte slice
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	if err := enc.Encode(message); err != nil {
+		logger.Error("Failed to encode message: ", err)
+		return err
+	}
+
+	err := channel.Publish(
+		"",         // exchange
+		queueName,  // routing key
+		false,      // mandatory
+		false,      // immediate
+		amqp.Publishing{
+			ContentType: "application/octet-stream",
+			Body:        buf.Bytes(),
+		},
+	)
+
+	if err != nil {
+		logger.Error("Failed to publish message to the queue: ", err)
+		return err
+	}
+
+	logger.Info("Message sent to the queue successfully.")
+	return nil
 }
