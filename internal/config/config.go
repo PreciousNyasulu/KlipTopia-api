@@ -27,7 +27,7 @@ func LoadConfig() models.Config {
 		},
 		Postgres: models.PostgresConfig{
 			Host:     os.Getenv("POSTGRES_HOST"),
-			Port:     os.Getenv("POSTGRES_POST"),
+			Port:     os.Getenv("POSTGRES_PORT"),
 			User:     os.Getenv("POSTGRES_USER"),
 			Password: os.Getenv("POSTGRES_PASSWORD"),
 			Database: os.Getenv("POSTGRES_DATABASE"),

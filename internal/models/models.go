@@ -70,8 +70,8 @@ type SessionData struct{
 
 type QueueMessage 	struct{
 	ID				string		`json:"id"`
-	DeviceIpAddress string		`json:"deviceAddress"`
-	Content 		string		`json:"content"`
+	DeviceIpAddress string		`json:"deviceIpAddress" validate:required`
+	Content 		string		`json:"content" validate:"required"`
 	ContentType		string		`json:"contentType"`
-	CopiedAt 		time.Time	`json:"copiedAt"`
+	CopiedAt 		time.Time	`json:"copiedAt" validate:"required"`
 }
