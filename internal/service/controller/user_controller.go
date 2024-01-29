@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	conf "kliptopia-api/internal/config"
 	"kliptopia-api/internal/models"
@@ -10,6 +11,8 @@ import (
 	"time"
 
 	mr_rabbit "kliptopia-api/internal/rabbitmq_processes"
+
+	"kliptopia-api/internal/repository"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -66,6 +69,14 @@ func LoginHandler(c *gin.Context) {
 	switch auth.Login(user) {
 	case "success":
 		token, err := GenerateToken(user)
+		
+		if err != nil {
+			if err.Error() == "user already logged in" {
+				c.JSON(http.StatusOK,gin.H{"message": "user already authenticated"})
+				return
+			}			
+		}
+
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "failed to generate token"})
 			return
@@ -136,6 +147,11 @@ const (
 
 // GenerateToken generates a new JWT token for the given user.
 func GenerateToken(user models.AuthRequestBody) (string, error) {
+	DB, err := repository.Connect()
+	if err != nil {
+		logger.Error("Failed to connect to the data repository")
+	}
+	defer repository.CloseDB()
 
 	//dont know if this is the correct way to do it (sigh) :(
 	secretKey := []byte(config.Authentication.TOKEN_SIGNING_SECRET)
@@ -152,5 +168,58 @@ func GenerateToken(user models.AuthRequestBody) (string, error) {
 		return "", err
 	}
 
+	var (
+		user_id int 
+		result_count int64
+	)
+
+	user_id = getUserId(user.Username)
+	
+	DB.Table("auth_tokens").Where(models.AuthToken{User_Id: user_id}).Where("expired_at is NULL").Count(&result_count)
+	if result_count > 0 {
+		logger.Info(fmt.Sprintf("User %s already authenticated",user.Username))
+		return "", errors.New("user already logged in")
+	}
+
+	token_repository := models.AuthToken{
+		User_Id: user_id,
+		Token: tokenString,
+		Created_At: time.Now(),
+	}
+
+	if err := DB.Create(&token_repository).Error; err != nil{
+		logger.Warn(fmt.Sprintf("Token generated but failed to save to the data repository, %v", err))
+	}
+
 	return tokenString, nil
+}
+
+func LogoutHandler(c *gin.Context){
+	DB, err := repository.Connect()
+	if err != nil {
+		logger.Error("Failed to connect to the data repository")
+	}
+	defer repository.CloseDB()
+
+	username, _ := c.Get("username")
+	err = DB.Table("auth_tokens").Where(models.AuthToken{User_Id: getUserId(fmt.Sprintf("%s",username))}).Where("expired_at is NULL").Update("expired_at",time.Now()).Error
+	if err != nil {
+		logger.Error("Failed to invalidate the token")
+		c.JSON(http.StatusInternalServerError,gin.H{"message":"Failed to invalidate the token"})
+		return 
+	}
+	c.JSON(http.StatusOK, gin.H{"message":"Logout"})
+}
+
+func getUserId(username string) int {
+	DB, err := repository.Connect()
+	if err != nil {
+		logger.Error("Failed to connect to the data repository")
+	}
+	defer repository.CloseDB()
+
+	var user_id int
+	//retrieve user_id
+	DB.Table("users").Where(models.User{Username: username}).Or(models.User{Email: username}).Select("user_id").Find(&user_id)
+	return user_id
 }
