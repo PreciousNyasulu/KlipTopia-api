@@ -80,3 +80,11 @@ type QueueMessage 	struct{
 type AuthConfig struct{
 	TOKEN_SIGNING_SECRET string
 }
+
+type AuthToken struct{
+	Id *int `sql:"index"`
+	User_Id int
+	Token string
+	Created_At time.Time
+	expired_At *time.Time `sql:"index"`
+}
