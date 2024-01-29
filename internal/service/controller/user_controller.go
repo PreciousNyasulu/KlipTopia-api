@@ -104,6 +104,12 @@ func LoginHandler(c *gin.Context) {
 // AuthMiddleware is a middleware that checks for authentication.
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		DB, err := repository.Connect()
+		if err != nil {
+			logger.Error("Failed to connect to the data repository")
+		}
+		defer repository.CloseDB()
+
 		// Get the authorization header
 		authHeader := c.GetHeader("Authorization")
 
@@ -122,8 +128,16 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Validate the token
 		tokenString := parts[1]
+		var result_count int64
+		DB.Table("auth_tokens").Where(&models.AuthToken{Token: tokenString}).Where("expired_at is NULL").Count(&result_count)
+		if result_count < 1 {
+			c.JSON(http.StatusUnauthorized,gin.H{"message":"Invalid request, token expired"})
+			c.Abort()
+			return
+		}
+
+		// Validate the token
 		claims := &jwt.StandardClaims{}
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 			return []byte(config.Authentication.TOKEN_SIGNING_SECRET), nil
