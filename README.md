@@ -1,52 +1,78 @@
-## KlipTopia
 
-KlipTopia is a powerful clipboard manager that helps you manage and organize your clipboard history. With KlipTopia, you can easily access and paste any item from your clipboard history, and you can even sync your clipboard history across multiple devices.
+# KlipTopia API
+## Overview
+
+The KlipTopia API provides the backend infrastructure for a clipboard tool named KlipTopia, allowing seamless syncing of clipboard data across multiple devices. This API is designed to be the backbone for a reliable and efficient clipboard synchronization service.
 
 ## Features
 
-* **Unlimited clipboard history:** Save and access an unlimited number of clipboard items.
-* **Search and filter clipboard history:** Quickly find the clipboard item you need using the search bar or filter options.
-* **Sync clipboard history across devices:** Keep your clipboard history synchronized across your devices using cloud storage.
-* **Pin frequently used items:** Pin frequently used items to the top of your clipboard history for quick access.
-* **Organize clipboard items into categories:** Create categories to organize your clipboard items for easy access.
-* **Share clipboard items with others:** Easily share clipboard items with others using a link or by copying and pasting.
-* **Customize the appearance:** Customize the appearance of KlipTopia to match your preferences.
+- **Cross-Device Clipboard Sync:** Sync your clipboard data across various devices in real-time.
+- **Secure Data Transmission:** Ensure secure and encrypted communication between devices.
+- **User Authentication:** Secure your clipboard data by implementing user authentication.
+- **RESTful API:** Follows REST principles for easy integration with various clients.
 
-## Compatibility
+## Getting Started
 
-KlipTopia is currently available for Android and Windows. We are working on expanding our platform support to include macOS, Linux, and iOS in the near future.
+These instructions will help you set up the project on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-## Installation
+### Prerequisites
 
-### Android
+Ensure you have the following software installed on your machine before setting up KlipTopia API:
 
-To install KlipTopia on Android, follow these steps:
+- [Go](https://golang.org/) (at least version 1.21.5)
+- Database (e.g., [PostgreSQL](https://www.postgresql.org/))
+- [RabbitMQ](https://www.rabbitmq.com/)
 
-1. Open the Google Play Store app on your Android device.
-2. Search for "KlipTopia" and tap the app icon.
-3. Tap the "Install" button.
-4. Once the installation is complete, tap the "Open" button to launch KlipTopia.
+### Installation
 
-### Windows
+1. Clone the repository:
 
-To install KlipTopia on Windows, follow these steps:
+   ```bash
+   git clone https://github.com/PreciousNyasulu/KlipTopia-api.git
+   ```
 
-1. Download the latest version of KlipTopia from [link to Windows download page].
-2. Run the installer and follow the on-screen instructions.
-3. Launch KlipTopia and start managing your clipboard history!
+2. Install dependencies:
 
-## Usage
+   ```bash
+   cd KlipTopia-api
+   go mod download
+   ```
 
-To use KlipTopia, simply copy any item to your clipboard using the usual methods (Ctrl+C or Cmd+C). The item will be automatically saved to your clipboard history. To access your clipboard history, open KlipTopia and click on the "History" tab. You can then search, filter, and paste any item from your clipboard history.
+3. Run Docker containers
 
-## Screenshots
+    ```bash
+    docker compose up -d
+    ```
 
-[Insert screenshots of the clipboard application]
+4. Set up the configuration:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Update the `.env` file with your configuration details.
+
+5. Run the application:
+
+   ```bash
+   go run cmd/main.go
+   ```
+
+5. The API will be available at `http://localhost:9000`.
+
+## API Documentation
+
+Explore the API endpoints and learn how to interact with the KlipTopia clipboard sync service. See [API Documentation](docs/API_DOCUMENTATION.md).
 
 ## Contributing
 
-KlipTopia is an open source project. You can contribute to the project by reporting bugs, suggesting features, or submitting pull requests. To learn more about contributing, please visit the project's GitHub repository: [link to GitHub repository]
+KlipTopia is an open source project. You can contribute to the project by reporting bugs, suggesting features, or submitting pull requests.
 
 ## License
 
-KlipTopia is licensed under the MIT license. You can find the full license text in the LICENSE file.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Hat tip to anyone whose code was used
+- Inspiration
